@@ -86,7 +86,7 @@ const prec = 512
 
 type (
 	unknownVal struct{}
-	boolVal    bool
+	boolVal    int8 // 0=false, 1=true, 2=maybe
 	stringVal  struct {
 		// Lazy value: either a string (l,r==nil) or an addition (l,r!=nil).
 		mu   sync.Mutex
@@ -110,7 +110,18 @@ func (floatVal) Kind() Kind   { return Float }
 func (complexVal) Kind() Kind { return Complex }
 
 func (unknownVal) String() string { return "unknown" }
-func (x boolVal) String() string  { return strconv.FormatBool(bool(x)) }
+func (x boolVal) String() string {
+	switch x {
+	case 0:
+		return "false"
+	case 1:
+		return "true"
+	case 2:
+		return "maybe"
+	default:
+		return "invalid"
+	}
+}
 
 // String returns a possibly shortened quoted form of the String value.
 func (x *stringVal) String() string {
@@ -381,7 +392,15 @@ func smallFloat(x *big.Float) bool {
 func MakeUnknown() Value { return unknownVal{} }
 
 // MakeBool returns the [Bool] value for b.
-func MakeBool(b bool) Value { return boolVal(b) }
+func MakeBool(b bool) Value {
+	if b {
+		return boolVal(1)
+	}
+	return boolVal(0)
+}
+
+// MakeMaybe returns the [Bool] value for maybe.
+func MakeMaybe() Value { return boolVal(2) }
 
 // MakeString returns the [String] value for s.
 func MakeString(s string) Value {
