@@ -27,6 +27,7 @@ func panicwrap()
 func gopanic(interface{})
 func gorecover() interface{}
 func goschedguarded()
+func coinflip() bool
 
 // Note: these declarations are just for wasm port.
 // Other ports call assembly stubs instead.

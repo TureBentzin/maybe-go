@@ -187,6 +187,17 @@ func maps_rand() uint64 {
 	return rand()
 }
 
+// coinflip returns true or false with equal probability.
+// It is called by compiler-generated code for maybe value resolution.
+//
+// Do not change signature: used via linkname from compiler.
+//
+//go:nosplit
+//go:linkname coinflip
+func coinflip() bool {
+	return rand()&1 == 0
+}
+
 // mrandinit initializes the random state of an m.
 func mrandinit(mp *m) {
 	var seed [4]uint64
