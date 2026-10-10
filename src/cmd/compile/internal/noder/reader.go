@@ -1968,7 +1968,7 @@ func (r *reader) forStmt(label *types.Sym) ir.Node {
 	perLoopVars := r.Bool()
 	r.closeAnotherScope()
 
-	if ir.IsConst(cond, constant.Bool) && !ir.BoolVal(cond) {
+	if ir.IsConstBool(cond) && !ir.BoolVal(cond) {
 		return init // simplify "for init; false; post { ... }" into "init"
 	}
 

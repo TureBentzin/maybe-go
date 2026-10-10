@@ -1964,7 +1964,7 @@ func (s *state) stmt(n ir.Node) {
 
 	case ir.OIF:
 		n := n.(*ir.IfStmt)
-		if ir.IsConst(n.Cond, constant.Bool) {
+		if ir.IsConstBool(n.Cond) {
 			s.stmtList(n.Cond.Init())
 			if ir.BoolVal(n.Cond) {
 				s.stmtList(n.Body)

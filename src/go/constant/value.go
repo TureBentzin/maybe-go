@@ -493,16 +493,23 @@ func MakeFromLiteral(lit string, tok token.Token, zero uint) Value {
 // accessor type, except for Sign, where the result is 1.
 
 // BoolVal returns the Go boolean value of x, which must be a [Bool] or an [Unknown].
-// If x is [Unknown], the result is false.
+// If x is [Unknown] or maybe, the result is false.
+// Callers should use IsMaybe to check for maybe values separately.
 func BoolVal(x Value) bool {
 	switch x := x.(type) {
 	case boolVal:
-		return bool(x)
+		return x == 1
 	case unknownVal:
 		return false
 	default:
 		panic(fmt.Sprintf("%v not a Bool", x))
 	}
+}
+
+// IsMaybe reports whether x is a maybe value.
+func IsMaybe(x Value) bool {
+	v, ok := x.(boolVal)
+	return ok && v == 2
 }
 
 // StringVal returns the Go string value of x, which must be a [String] or an [Unknown].
@@ -610,7 +617,7 @@ func Float64Val(x Value) (float64, bool) {
 func Val(x Value) any {
 	switch x := x.(type) {
 	case boolVal:
-		return bool(x)
+		return x != 0
 	case *stringVal:
 		return x.string()
 	case int64Val:
@@ -664,7 +671,10 @@ func (x *stringVal) len() int64 {
 func Make(x any) Value {
 	switch x := x.(type) {
 	case bool:
-		return boolVal(x)
+		if x {
+			return boolVal(1)
+		}
+		return boolVal(0)
 	case string:
 		return &stringVal{s: x}
 	case int64:
@@ -1050,7 +1060,14 @@ func UnaryOp(op token.Token, y Value, prec uint) Value {
 		case unknownVal:
 			return y
 		case boolVal:
-			return !y
+			switch y {
+			case 0:
+				return boolVal(1)
+			case 1:
+				return boolVal(0)
+			case 2:
+				return boolVal(2)
+			}
 		}
 	}
 
@@ -1155,9 +1172,27 @@ func BinaryOp(x_ Value, op token.Token, y_ Value) Value {
 		y := y.(boolVal)
 		switch op {
 		case token.LAND:
-			return x && y
+			if x == 0 {
+				return boolVal(0)
+			}
+			if y == 0 {
+				return boolVal(0)
+			}
+			if x == 2 || y == 2 {
+				return boolVal(2)
+			}
+			return boolVal(1)
 		case token.LOR:
-			return x || y
+			if x == 1 {
+				return boolVal(1)
+			}
+			if y == 1 {
+				return boolVal(1)
+			}
+			if x == 2 || y == 2 {
+				return boolVal(2)
+			}
+			return boolVal(0)
 		}
 
 	case int64Val:

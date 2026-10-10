@@ -125,6 +125,7 @@ var predeclaredConsts = [...]struct {
 }{
 	{"true", UntypedBool, constant.MakeBool(true)},
 	{"false", UntypedBool, constant.MakeBool(false)},
+	{"maybe", UntypedBool, constant.MakeMaybe()},
 	{"iota", UntypedInt, constant.MakeInt64(0)},
 }
 

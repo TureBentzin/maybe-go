@@ -950,6 +950,10 @@ func (check *Checker) builtin(x *operand, call *syntax.CallExpr, id builtinId) (
 			check.internalErrorf(x, "value of %s should be a boolean constant", x)
 			return
 		}
+		if constant.IsMaybe(x.val) {
+			check.errorf(call, Test, "cannot assert on maybe value")
+			return
+		}
 		if !constant.BoolVal(x.val) {
 			check.errorf(call, Test, "%v failed", call)
 			// compile-time assertion failure - safe to continue

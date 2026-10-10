@@ -97,6 +97,11 @@ func BoolVal(n Node) bool {
 	return constant.BoolVal(n.Val())
 }
 
+// IsConstBool reports whether n is a constant boolean value (not maybe).
+func IsConstBool(n Node) bool {
+	return IsConst(n, constant.Bool) && !constant.IsMaybe(n.Val())
+}
+
 // StringVal returns the value of a literal string Node as a string.
 // n must be a string constant.
 func StringVal(n Node) string {

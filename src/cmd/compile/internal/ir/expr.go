@@ -795,6 +795,9 @@ func IsZero(n Node) bool {
 		case constant.String:
 			return constant.StringVal(u) == ""
 		case constant.Bool:
+			if constant.IsMaybe(u) {
+				return false
+			}
 			return !constant.BoolVal(u)
 		default:
 			return constant.Sign(u) == 0
